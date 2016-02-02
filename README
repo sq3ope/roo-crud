@@ -1,0 +1,2 @@
+To run call: mvn clean install tomcat7:run
+And navigate to: http://localhost:8080/Roora/
