@@ -1,0 +1,23 @@
+project setup --topLevelPackage crud.roo --projectName Roora --java 7
+
+persistence setup --provider HIBERNATE --database HYPERSONIC_IN_MEMORY 
+
+# --- Entities---
+
+entity jpa --class ~.domain.Person --testAutomatically
+field string --fieldName email --notNull
+field string --fieldName firstName --notNull
+field string --fieldName lastName --notNull                                
+
+# --- Creating WEB tier ---
+
+web mvc setup
+web mvc all --package ~.web
+
+# --- Tests ---
+
+selenium test --controller ~.web.PersonController
+security setup
+perform tests
+
+quit
