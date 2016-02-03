@@ -1,2 +1,8 @@
-To run call: mvn clean install tomcat7:run
-And navigate to: http://localhost:8080/Roora/
+To run call:
+mvn clean install tomcat7:run
+
+And navigate to:
+http://localhost:8080/Roora/
+
+To run Selenium tests, call in different console:
+mvn selenium:selenese
