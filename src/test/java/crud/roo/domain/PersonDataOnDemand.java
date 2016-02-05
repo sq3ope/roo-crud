@@ -1,23 +1,25 @@
 package crud.roo.domain;
+
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.stereotype.Component;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.stereotype.Component;
 
 @Component
 @Configurable
 public class PersonDataOnDemand {
 
-	private Random rnd = new SecureRandom();
+    private Random rnd = new SecureRandom();
 
-	private List<? extends GenericEntity> data;
+    private List<? extends GenericEntity> data;
 
-	public Person getNewTransientPerson(int index) {
+    public Person getNewTransientPerson(int index) {
         Person obj = new Person();
         setEmail(obj, index);
         setFirstName(obj, index);
@@ -25,22 +27,22 @@ public class PersonDataOnDemand {
         return obj;
     }
 
-	public void setEmail(Person obj, int index) {
+    public void setEmail(Person obj, int index) {
         String email = "foo" + index + "@bar.com";
         obj.setEmail(email);
     }
 
-	public void setFirstName(Person obj, int index) {
+    public void setFirstName(Person obj, int index) {
         String firstName = "firstName_" + index;
         obj.setFirstName(firstName);
     }
 
-	public void setLastName(Person obj, int index) {
+    public void setLastName(Person obj, int index) {
         String lastName = "lastName_" + index;
         obj.setLastName(lastName);
     }
 
-	public GenericEntity getSpecificPerson(int index) throws InstantiationException, IllegalAccessException {
+    public GenericEntity getSpecificPerson(int index) throws InstantiationException, IllegalAccessException {
         init();
         if (index < 0) {
             index = 0;
@@ -53,18 +55,18 @@ public class PersonDataOnDemand {
         return Person.find(id, Person.class);
     }
 
-	public Person getRandomPerson() throws InstantiationException, IllegalAccessException {
+    public Person getRandomPerson() throws InstantiationException, IllegalAccessException {
         init();
         Person obj = (Person) data.get(rnd.nextInt(data.size()));
         Long id = obj.getId();
         return (Person) Person.find(id, Person.class);
     }
 
-	public boolean modifyPerson(GenericEntity obj) {
+    public boolean modifyPerson(GenericEntity obj) {
         return false;
     }
 
-	public void init() throws InstantiationException, IllegalAccessException {
+    public void init() throws InstantiationException, IllegalAccessException {
         int from = 0;
         int to = 10;
         data = Person.findEntries(from, to, Person.class);
@@ -74,7 +76,7 @@ public class PersonDataOnDemand {
         if (!data.isEmpty()) {
             return;
         }
-        
+
         ArrayList<Person> tmpdata = new ArrayList<Person>();
         for (int i = 0; i < 10; i++) {
             Person obj = getNewTransientPerson(i);
@@ -82,7 +84,7 @@ public class PersonDataOnDemand {
                 obj.persist();
             } catch (final ConstraintViolationException e) {
                 final StringBuilder msg = new StringBuilder();
-                for (Iterator<ConstraintViolation<?>> iter = e.getConstraintViolations().iterator(); iter.hasNext();) {
+                for (Iterator<ConstraintViolation<?>> iter = e.getConstraintViolations().iterator(); iter.hasNext(); ) {
                     final ConstraintViolation<?> cv = iter.next();
                     msg.append("[").append(cv.getRootBean().getClass().getName()).append(".").append(cv.getPropertyPath()).append(": ").append(cv.getMessage()).append(" (invalid value = ").append(cv.getInvalidValue()).append(")").append("]");
                 }

@@ -1,8 +1,5 @@
 package crud.roo.domain;
-import java.util.Iterator;
-import java.util.List;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +8,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.Iterator;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath*:/META-INF/spring/applicationContext*.xml")
@@ -22,17 +24,17 @@ public class PersonIntegrationTest {
     public void testMarkerMethod() {
     }
 
-	@Autowired
+    @Autowired
     PersonDataOnDemand dod;
 
-	@Test
+    @Test
     public void testCountPeople() throws InstantiationException, IllegalAccessException {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
         long count = Person.count(Person.class);
         Assert.assertTrue("Counter for 'Person' incorrectly reported there were no entries", count > 0);
     }
 
-	@Test
+    @Test
     public void testFindPerson() throws InstantiationException, IllegalAccessException {
         Person obj = dod.getRandomPerson();
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", obj);
@@ -43,7 +45,7 @@ public class PersonIntegrationTest {
         Assert.assertEquals("Find method for 'Person' returned the incorrect identifier", id, obj.getId());
     }
 
-	@Test
+    @Test
     public void testFindAllPeople() throws InstantiationException, IllegalAccessException {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
         long count = Person.count(Person.class);
@@ -53,7 +55,7 @@ public class PersonIntegrationTest {
         Assert.assertTrue("Find all method for 'Person' failed to return any data", result.size() > 0);
     }
 
-	@Test
+    @Test
     public void testFindPersonEntries() throws InstantiationException, IllegalAccessException {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
         long count = Person.count(Person.class);
@@ -65,7 +67,7 @@ public class PersonIntegrationTest {
         Assert.assertEquals("Find entries method for 'Person' returned an incorrect number of entries", count, result.size());
     }
 
-	@Test
+    @Test
     public void testFlush() throws InstantiationException, IllegalAccessException {
         Person obj = dod.getRandomPerson();
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", obj);
@@ -73,20 +75,20 @@ public class PersonIntegrationTest {
         Assert.assertNotNull("Data on demand for 'Person' failed to provide an identifier", id);
         obj = (Person) Person.find(id, Person.class);
         Assert.assertNotNull("Find method for 'Person' illegally returned null for id '" + id + "'", obj);
-        boolean modified =  dod.modifyPerson(obj);
+        boolean modified = dod.modifyPerson(obj);
         Integer currentVersion = obj.getVersion();
         obj.flush();
         Assert.assertTrue("Version for 'Person' failed to increment on flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
 
-	@Test
+    @Test
     public void testMergeUpdate() throws InstantiationException, IllegalAccessException {
         Person obj = dod.getRandomPerson();
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'Person' failed to provide an identifier", id);
         obj = (Person) Person.find(id, Person.class);
-        boolean modified =  dod.modifyPerson(obj);
+        boolean modified = dod.modifyPerson(obj);
         Integer currentVersion = obj.getVersion();
         Person merged = (Person) obj.merge();
         obj.flush();
@@ -94,7 +96,7 @@ public class PersonIntegrationTest {
         Assert.assertTrue("Version for 'Person' failed to increment on merge and flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
 
-	@Test
+    @Test
     public void testPersist() throws InstantiationException, IllegalAccessException {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
         Person obj = dod.getNewTransientPerson(Integer.MAX_VALUE);
@@ -104,7 +106,7 @@ public class PersonIntegrationTest {
             obj.persist();
         } catch (final ConstraintViolationException e) {
             final StringBuilder msg = new StringBuilder();
-            for (Iterator<ConstraintViolation<?>> iter = e.getConstraintViolations().iterator(); iter.hasNext();) {
+            for (Iterator<ConstraintViolation<?>> iter = e.getConstraintViolations().iterator(); iter.hasNext(); ) {
                 final ConstraintViolation<?> cv = iter.next();
                 msg.append("[").append(cv.getRootBean().getClass().getName()).append(".").append(cv.getPropertyPath()).append(": ").append(cv.getMessage()).append(" (invalid value = ").append(cv.getInvalidValue()).append(")").append("]");
             }
@@ -114,7 +116,7 @@ public class PersonIntegrationTest {
         Assert.assertNotNull("Expected 'Person' identifier to no longer be null", obj.getId());
     }
 
-	@Test
+    @Test
     public void testRemove() throws InstantiationException, IllegalAccessException {
         Person obj = dod.getRandomPerson();
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", obj);
