@@ -26,52 +26,52 @@ public class PersonIntegrationTest {
     PersonDataOnDemand dod;
 
 	@Test
-    public void testCountPeople() {
+    public void testCountPeople() throws InstantiationException, IllegalAccessException {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
-        long count = Person.countPeople();
+        long count = Person.countPeople(Person.class);
         Assert.assertTrue("Counter for 'Person' incorrectly reported there were no entries", count > 0);
     }
 
 	@Test
-    public void testFindPerson() {
+    public void testFindPerson() throws InstantiationException, IllegalAccessException {
         Person obj = dod.getRandomPerson();
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'Person' failed to provide an identifier", id);
-        obj = Person.findPerson(id);
+        obj = (Person) Person.findPerson(id, Person.class);
         Assert.assertNotNull("Find method for 'Person' illegally returned null for id '" + id + "'", obj);
         Assert.assertEquals("Find method for 'Person' returned the incorrect identifier", id, obj.getId());
     }
 
 	@Test
-    public void testFindAllPeople() {
+    public void testFindAllPeople() throws InstantiationException, IllegalAccessException {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
-        long count = Person.countPeople();
+        long count = Person.countPeople(Person.class);
         Assert.assertTrue("Too expensive to perform a find all test for 'Person', as there are " + count + " entries; set the findAllMaximum to exceed this value or set findAll=false on the integration test annotation to disable the test", count < 250);
-        List<Person> result = Person.findAllPeople();
+        List<GenericEntity> result = Person.findAllPeople(Person.class);
         Assert.assertNotNull("Find all method for 'Person' illegally returned null", result);
         Assert.assertTrue("Find all method for 'Person' failed to return any data", result.size() > 0);
     }
 
 	@Test
-    public void testFindPersonEntries() {
+    public void testFindPersonEntries() throws InstantiationException, IllegalAccessException {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
-        long count = Person.countPeople();
+        long count = Person.countPeople(Person.class);
         if (count > 20) count = 20;
         int firstResult = 0;
         int maxResults = (int) count;
-        List<Person> result = Person.findPersonEntries(firstResult, maxResults);
+        List<GenericEntity> result = Person.findPersonEntries(firstResult, maxResults, Person.class);
         Assert.assertNotNull("Find entries method for 'Person' illegally returned null", result);
         Assert.assertEquals("Find entries method for 'Person' returned an incorrect number of entries", count, result.size());
     }
 
 	@Test
-    public void testFlush() {
+    public void testFlush() throws InstantiationException, IllegalAccessException {
         Person obj = dod.getRandomPerson();
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'Person' failed to provide an identifier", id);
-        obj = Person.findPerson(id);
+        obj = (Person) Person.findPerson(id, Person.class);
         Assert.assertNotNull("Find method for 'Person' illegally returned null for id '" + id + "'", obj);
         boolean modified =  dod.modifyPerson(obj);
         Integer currentVersion = obj.getVersion();
@@ -80,22 +80,22 @@ public class PersonIntegrationTest {
     }
 
 	@Test
-    public void testMergeUpdate() {
+    public void testMergeUpdate() throws InstantiationException, IllegalAccessException {
         Person obj = dod.getRandomPerson();
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'Person' failed to provide an identifier", id);
-        obj = Person.findPerson(id);
+        obj = (Person) Person.findPerson(id, Person.class);
         boolean modified =  dod.modifyPerson(obj);
         Integer currentVersion = obj.getVersion();
-        Person merged = obj.merge();
+        Person merged = (Person) obj.merge();
         obj.flush();
         Assert.assertEquals("Identifier of merged object not the same as identifier of original object", merged.getId(), id);
         Assert.assertTrue("Version for 'Person' failed to increment on merge and flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
 
 	@Test
-    public void testPersist() {
+    public void testPersist() throws InstantiationException, IllegalAccessException {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
         Person obj = dod.getNewTransientPerson(Integer.MAX_VALUE);
         Assert.assertNotNull("Data on demand for 'Person' failed to provide a new transient entity", obj);
@@ -115,14 +115,14 @@ public class PersonIntegrationTest {
     }
 
 	@Test
-    public void testRemove() {
+    public void testRemove() throws InstantiationException, IllegalAccessException {
         Person obj = dod.getRandomPerson();
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'Person' failed to provide an identifier", id);
-        obj = Person.findPerson(id);
+        obj = (Person) Person.findPerson(id, Person.class);
         obj.remove();
         obj.flush();
-        Assert.assertNull("Failed to remove 'Person' with identifier '" + id + "'", Person.findPerson(id));
+        Assert.assertNull("Failed to remove 'Person' with identifier '" + id + "'", Person.findPerson(id, Person.class));
     }
 }

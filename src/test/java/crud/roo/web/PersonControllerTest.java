@@ -1,5 +1,6 @@
 package crud.roo.web;
 
+import crud.roo.domain.GenericEntity;
 import crud.roo.domain.Person;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Person.class)
+@PrepareForTest(GenericEntity.class)
 public class PersonControllerTest {
     @Mock
     Person person;
@@ -76,10 +77,9 @@ public class PersonControllerTest {
     @Test
     public void testShow() throws Exception {
         long id = 17L;
-        Person person = new Person();
 
-        PowerMockito.mockStatic(Person.class);
-        Mockito.when(Person.findPerson(id)).thenReturn(person);
+        PowerMockito.mockStatic(GenericEntity.class);
+        Mockito.when(GenericEntity.findPerson(id, Person.class)).thenReturn(person);
 
         String resultView = personController.show(id, uiModel);
 
@@ -90,11 +90,11 @@ public class PersonControllerTest {
 
     @Test
     public void testList() throws Exception {
-        List<Person> people = new ArrayList<>();
+        List<GenericEntity> people = new ArrayList<>();
         people.add(person);
 
-        PowerMockito.mockStatic(Person.class);
-        Mockito.when(Person.findAllPeople(null, null)).thenReturn(people);
+        PowerMockito.mockStatic(GenericEntity.class);
+        Mockito.when(GenericEntity.findAllPeople(null, null, Person.class)).thenReturn(people);
 
         String resultView = personController.list(null, null, null, null, uiModel);
 
@@ -104,7 +104,7 @@ public class PersonControllerTest {
 
     @Test
     public void testListPaging() throws Exception {
-        List<Person> people = new ArrayList<>();
+        List<GenericEntity> people = new ArrayList<>();
         people.add(person);
 
         int page = 2;
@@ -113,9 +113,9 @@ public class PersonControllerTest {
         String sortFieldName = "name";
         String sortOrder = "asc";
 
-        PowerMockito.mockStatic(Person.class);
-        Mockito.when(Person.findPersonEntries(firstResult, size, sortFieldName, sortOrder)).thenReturn(people);
-        Mockito.when(Person.countPeople()).thenReturn(17L);
+        PowerMockito.mockStatic(GenericEntity.class);
+        Mockito.when(GenericEntity.findPersonEntries(firstResult, size, sortFieldName, sortOrder, Person.class)).thenReturn(people);
+        Mockito.when(GenericEntity.countPeople(Person.class)).thenReturn(17L);
 
         String resultView = personController.list(page, size, sortFieldName, sortOrder, uiModel);
 
@@ -152,8 +152,8 @@ public class PersonControllerTest {
         long id = 17L;
         Person person = new Person();
 
-        PowerMockito.mockStatic(Person.class);
-        Mockito.when(Person.findPerson(id)).thenReturn(person);
+        PowerMockito.mockStatic(GenericEntity.class);
+        Mockito.when(GenericEntity.findPerson(id, Person.class)).thenReturn(person);
 
         String resultView = personController.updateForm(id, uiModel);
 
@@ -167,8 +167,8 @@ public class PersonControllerTest {
         int page = 1;
         int size = 10;
 
-        PowerMockito.mockStatic(Person.class);
-        Mockito.when(Person.findPerson(id)).thenReturn(person);
+        PowerMockito.mockStatic(GenericEntity.class);
+        Mockito.when(GenericEntity.findPerson(id, Person.class)).thenReturn(person);
 
         String resultView = personController.delete(id, page, size, uiModel);
 

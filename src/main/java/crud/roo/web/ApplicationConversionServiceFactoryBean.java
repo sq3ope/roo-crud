@@ -29,7 +29,17 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 	public Converter<Long, Person> getIdToPersonConverter() {
         return new org.springframework.core.convert.converter.Converter<java.lang.Long, crud.roo.domain.Person>() {
             public crud.roo.domain.Person convert(java.lang.Long id) {
-                return Person.findPerson(id);
+                try {
+					return (Person) Person.findPerson(id, Person.class);
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+					// TODO
+					return null;
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+					// TODO
+					return null;
+				}
             }
         };
     }

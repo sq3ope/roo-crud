@@ -15,7 +15,7 @@ public class PersonDataOnDemand {
 
 	private Random rnd = new SecureRandom();
 
-	private List<Person> data;
+	private List<? extends GenericEntity> data;
 
 	public Person getNewTransientPerson(int index) {
         Person obj = new Person();
@@ -40,7 +40,7 @@ public class PersonDataOnDemand {
         obj.setLastName(lastName);
     }
 
-	public Person getSpecificPerson(int index) {
+	public GenericEntity getSpecificPerson(int index) throws InstantiationException, IllegalAccessException {
         init();
         if (index < 0) {
             index = 0;
@@ -48,26 +48,26 @@ public class PersonDataOnDemand {
         if (index > (data.size() - 1)) {
             index = data.size() - 1;
         }
-        Person obj = data.get(index);
+        Person obj = (Person) data.get(index);
         Long id = obj.getId();
-        return Person.findPerson(id);
+        return Person.findPerson(id, Person.class);
     }
 
-	public Person getRandomPerson() {
+	public Person getRandomPerson() throws InstantiationException, IllegalAccessException {
         init();
-        Person obj = data.get(rnd.nextInt(data.size()));
+        Person obj = (Person) data.get(rnd.nextInt(data.size()));
         Long id = obj.getId();
-        return Person.findPerson(id);
+        return (Person) Person.findPerson(id, Person.class);
     }
 
-	public boolean modifyPerson(Person obj) {
+	public boolean modifyPerson(GenericEntity obj) {
         return false;
     }
 
-	public void init() {
+	public void init() throws InstantiationException, IllegalAccessException {
         int from = 0;
         int to = 10;
-        data = Person.findPersonEntries(from, to);
+        data = Person.findPersonEntries(from, to, Person.class);
         if (data == null) {
             throw new IllegalStateException("Find entries implementation for 'Person' illegally returned null");
         }
@@ -75,7 +75,7 @@ public class PersonDataOnDemand {
             return;
         }
         
-        data = new ArrayList<Person>();
+        ArrayList<Person> tmpdata = new ArrayList<Person>();
         for (int i = 0; i < 10; i++) {
             Person obj = getNewTransientPerson(i);
             try {
@@ -89,7 +89,8 @@ public class PersonDataOnDemand {
                 throw new IllegalStateException(msg.toString(), e);
             }
             obj.flush();
-            data.add(obj);
+            tmpdata.add(obj);
         }
+        data = tmpdata;
     }
 }
