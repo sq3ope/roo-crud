@@ -34,7 +34,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
         return new org.springframework.core.convert.converter.Converter<java.lang.Long, crud.roo.domain.Person>() {
             public crud.roo.domain.Person convert(java.lang.Long id) {
                 try {
-					return (Person) Person.findPerson(id, Person.class);
+					return (Person) Person.find(id, Person.class);
 				} catch (InstantiationException e) {
 					e.printStackTrace();
 					// TODO

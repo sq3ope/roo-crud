@@ -50,14 +50,14 @@ public class PersonDataOnDemand {
         }
         Person obj = (Person) data.get(index);
         Long id = obj.getId();
-        return Person.findPerson(id, Person.class);
+        return Person.find(id, Person.class);
     }
 
 	public Person getRandomPerson() throws InstantiationException, IllegalAccessException {
         init();
         Person obj = (Person) data.get(rnd.nextInt(data.size()));
         Long id = obj.getId();
-        return (Person) Person.findPerson(id, Person.class);
+        return (Person) Person.find(id, Person.class);
     }
 
 	public boolean modifyPerson(GenericEntity obj) {
@@ -67,7 +67,7 @@ public class PersonDataOnDemand {
 	public void init() throws InstantiationException, IllegalAccessException {
         int from = 0;
         int to = 10;
-        data = Person.findPersonEntries(from, to, Person.class);
+        data = Person.findEntries(from, to, Person.class);
         if (data == null) {
             throw new IllegalStateException("Find entries implementation for 'Person' illegally returned null");
         }

@@ -79,7 +79,7 @@ public class PersonControllerTest {
         long id = 17L;
 
         PowerMockito.mockStatic(GenericEntity.class);
-        Mockito.when(GenericEntity.findPerson(id, Person.class)).thenReturn(person);
+        Mockito.when(GenericEntity.find(id, Person.class)).thenReturn(person);
 
         String resultView = personController.show(id, uiModel);
 
@@ -94,7 +94,7 @@ public class PersonControllerTest {
         people.add(person);
 
         PowerMockito.mockStatic(GenericEntity.class);
-        Mockito.when(GenericEntity.findAllPeople(null, null, Person.class)).thenReturn(people);
+        Mockito.when(GenericEntity.findAll(null, null, Person.class)).thenReturn(people);
 
         String resultView = personController.list(null, null, null, null, uiModel);
 
@@ -114,8 +114,8 @@ public class PersonControllerTest {
         String sortOrder = "asc";
 
         PowerMockito.mockStatic(GenericEntity.class);
-        Mockito.when(GenericEntity.findPersonEntries(firstResult, size, sortFieldName, sortOrder, Person.class)).thenReturn(people);
-        Mockito.when(GenericEntity.countPeople(Person.class)).thenReturn(17L);
+        Mockito.when(GenericEntity.findEntries(firstResult, size, sortFieldName, sortOrder, Person.class)).thenReturn(people);
+        Mockito.when(GenericEntity.count(Person.class)).thenReturn(17L);
 
         String resultView = personController.list(page, size, sortFieldName, sortOrder, uiModel);
 
@@ -153,7 +153,7 @@ public class PersonControllerTest {
         Person person = new Person();
 
         PowerMockito.mockStatic(GenericEntity.class);
-        Mockito.when(GenericEntity.findPerson(id, Person.class)).thenReturn(person);
+        Mockito.when(GenericEntity.find(id, Person.class)).thenReturn(person);
 
         String resultView = personController.updateForm(id, uiModel);
 
@@ -168,7 +168,7 @@ public class PersonControllerTest {
         int size = 10;
 
         PowerMockito.mockStatic(GenericEntity.class);
-        Mockito.when(GenericEntity.findPerson(id, Person.class)).thenReturn(person);
+        Mockito.when(GenericEntity.find(id, Person.class)).thenReturn(person);
 
         String resultView = personController.delete(id, page, size, uiModel);
 

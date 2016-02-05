@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.atteo.evo.inflector.English;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,33 +16,35 @@ import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
 import crud.roo.domain.GenericEntity;
+import crud.roo.util.ClassUtil;
 
 public abstract class GenericSpringMVCController<E extends GenericEntity> {
 
 	protected abstract Class<? extends GenericEntity> getEntityClass();
+	protected abstract String entityContextPath();
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "text/html")
-    public String create(@Valid E person, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
+    public String create(@Valid E entity, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
         if (bindingResult.hasErrors()) {
-            populateEditForm(uiModel, person);
-            return "people/create";
+            populateEditForm(uiModel, entity);
+            return entityContextPath() + "/create";
         }
         uiModel.asMap().clear();
-        person.persist();
-        return "redirect:/people/" + encodeUrlPathSegment(person.getId().toString(), httpServletRequest);
+        entity.persist();
+        return "redirect:/" + entityContextPath() + "/" + encodeUrlPathSegment(entity.getId().toString(), httpServletRequest);
     }
 
 	@RequestMapping(params = "form", produces = "text/html")
     public String createForm(Model uiModel) throws InstantiationException, IllegalAccessException {
         populateEditForm(uiModel, E.newInstance(getEntityClass()));
-        return "people/create";
+        return entityContextPath() + "/create";
     }
 
 	@RequestMapping(value = "/{id}", produces = "text/html")
     public String show(@PathVariable("id") Long id, Model uiModel) throws InstantiationException, IllegalAccessException {
-        uiModel.addAttribute("person", E.findPerson(id, getEntityClass()));
+        uiModel.addAttribute(entityAttributeName(), E.find(id, getEntityClass()));
         uiModel.addAttribute("itemId", id);
-        return "people/show";
+        return entityContextPath() + "/show";
     }
 
 	@RequestMapping(produces = "text/html")
@@ -49,44 +52,44 @@ public abstract class GenericSpringMVCController<E extends GenericEntity> {
         if (page != null || size != null) {
             int sizeNo = size == null ? 10 : size.intValue();
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-            uiModel.addAttribute("people", E.findPersonEntries(firstResult, sizeNo, sortFieldName, sortOrder, getEntityClass()));
-            float nrOfPages = (float) E.countPeople(getEntityClass()) / sizeNo;
+            uiModel.addAttribute(entityCollectionAttributeName(), E.findEntries(firstResult, sizeNo, sortFieldName, sortOrder, getEntityClass()));
+            float nrOfPages = (float) E.count(getEntityClass()) / sizeNo;
             uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages));
         } else {
-            uiModel.addAttribute("people", E.findAllPeople(sortFieldName, sortOrder, getEntityClass()));
+            uiModel.addAttribute(entityCollectionAttributeName(), E.findAll(sortFieldName, sortOrder, getEntityClass()));
         }
-        return "people/list";
+        return entityContextPath() + "/list";
     }
 
 	@RequestMapping(method = RequestMethod.PUT, produces = "text/html")
-    public String update(@Valid E person, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
+    public String update(@Valid E entity, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
         if (bindingResult.hasErrors()) {
-            populateEditForm(uiModel, person);
-            return "people/update";
+            populateEditForm(uiModel, entity);
+            return entityContextPath() + "/update";
         }
         uiModel.asMap().clear();
-        person.merge();
-        return "redirect:/people/" + encodeUrlPathSegment(person.getId().toString(), httpServletRequest);
+        entity.merge();
+        return "redirect:/" + entityContextPath() + "/" + encodeUrlPathSegment(entity.getId().toString(), httpServletRequest);
     }
 
 	@RequestMapping(value = "/{id}", params = "form", produces = "text/html")
     public String updateForm(@PathVariable("id") Long id, Model uiModel) throws InstantiationException, IllegalAccessException {
-        populateEditForm(uiModel, E.findPerson(id, getEntityClass()));
-        return "people/update";
+        populateEditForm(uiModel, E.find(id, getEntityClass()));
+        return entityContextPath() + "/update";
     }
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = "text/html")
     public String delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) throws InstantiationException, IllegalAccessException {
-        GenericEntity person = GenericEntity.findPerson(id, getEntityClass());
-        person.remove();
+        GenericEntity entity = GenericEntity.find(id, getEntityClass());
+        entity.remove();
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
-        return "redirect:/people";
+        return "redirect:/" + entityContextPath();
     }
 
-	void populateEditForm(Model uiModel, GenericEntity person) {
-        uiModel.addAttribute("person", person);
+	void populateEditForm(Model uiModel, GenericEntity entity) {
+        uiModel.addAttribute(entityAttributeName(), entity);
     }
 
 	String encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {
@@ -99,4 +102,12 @@ public abstract class GenericSpringMVCController<E extends GenericEntity> {
         } catch (UnsupportedEncodingException uee) {}
         return pathSegment;
     }
+
+	protected String entityAttributeName() {
+		return ClassUtil.getClassName(getEntityClass()).toLowerCase();
+	}
+
+	protected String entityCollectionAttributeName() {
+		return English.plural(entityAttributeName());
+	}
 }

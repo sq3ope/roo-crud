@@ -16,9 +16,14 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.transaction.annotation.Transactional;
 
+import crud.roo.util.ClassUtil;
+
 @Entity
 @Inheritance
 public class GenericEntity {
+
+	@PersistenceContext
+    transient EntityManager entityManager;
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -53,9 +58,6 @@ public class GenericEntity {
 	    return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 
-	@PersistenceContext
-    transient EntityManager entityManager;
-
 	public static final List<String> fieldNames4OrderClauseFilter = java.util.Arrays.asList("email", "firstName", "lastName");
 
 	public static GenericEntity newInstance(Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
@@ -68,16 +70,16 @@ public class GenericEntity {
         return em;
     }
 
-	public static long countPeople(Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
-        return entityManager(entityClass).createQuery("SELECT COUNT(o) FROM " + getClassName(entityClass) + " o", Long.class).getSingleResult();
+	public static long count(Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
+        return entityManager(entityClass).createQuery("SELECT COUNT(o) FROM " + entityName(entityClass) + " o", Long.class).getSingleResult();
     }
 
-	public static List<GenericEntity> findAllPeople(Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
-        return (List<GenericEntity>) entityManager(entityClass).createQuery("SELECT o FROM " + getClassName(entityClass) + " o", entityClass).getResultList();
+	public static List<GenericEntity> findAll(Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
+        return (List<GenericEntity>) entityManager(entityClass).createQuery("SELECT o FROM " + entityName(entityClass) + " o", entityClass).getResultList();
     }
 
-	public static List<GenericEntity> findAllPeople(String sortFieldName, String sortOrder, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
-        String jpaQuery = "SELECT o FROM " + getClassName(entityClass) + " o";
+	public static List<GenericEntity> findAll(String sortFieldName, String sortOrder, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
+        String jpaQuery = "SELECT o FROM " + entityName(entityClass) + " o";
         if (fieldNames4OrderClauseFilter.contains(sortFieldName)) {
             jpaQuery = jpaQuery + " ORDER BY " + sortFieldName;
             if ("ASC".equalsIgnoreCase(sortOrder) || "DESC".equalsIgnoreCase(sortOrder)) {
@@ -87,17 +89,17 @@ public class GenericEntity {
         return (List<GenericEntity>) entityManager(entityClass).createQuery(jpaQuery, entityClass).getResultList();
     }
 
-	public static GenericEntity findPerson(Long id, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
+	public static GenericEntity find(Long id, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
         if (id == null) return null;
         return (GenericEntity) entityManager(entityClass).find(entityClass, id);
     }
 
-	public static List<? extends GenericEntity> findPersonEntries(int firstResult, int maxResults, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
-        return entityManager(entityClass).createQuery("SELECT o FROM " + getClassName(entityClass) + " o", entityClass).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
+	public static List<? extends GenericEntity> findEntries(int firstResult, int maxResults, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
+        return entityManager(entityClass).createQuery("SELECT o FROM " + entityName(entityClass) + " o", entityClass).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
     }
 
-	public static List<GenericEntity> findPersonEntries(int firstResult, int maxResults, String sortFieldName, String sortOrder, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
-        String jpaQuery = "SELECT o FROM " + getClassName(entityClass) + " o";
+	public static List<GenericEntity> findEntries(int firstResult, int maxResults, String sortFieldName, String sortOrder, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
+        String jpaQuery = "SELECT o FROM " + entityName(entityClass) + " o";
         if (fieldNames4OrderClauseFilter.contains(sortFieldName)) {
             jpaQuery = jpaQuery + " ORDER BY " + sortFieldName;
             if ("ASC".equalsIgnoreCase(sortOrder) || "DESC".equalsIgnoreCase(sortOrder)) {
@@ -118,7 +120,7 @@ public class GenericEntity {
         if (this.entityManager.contains(this)) {
             this.entityManager.remove(this);
         } else {
-            GenericEntity attached = findPerson(this.id, this.getClass());
+            GenericEntity attached = find(this.id, this.getClass());
             this.entityManager.remove(attached);
         }
     }
@@ -142,9 +144,8 @@ public class GenericEntity {
         this.entityManager.flush();
         return merged;
     }
-	
-	private static String getClassName(Class<? extends GenericEntity> entityClass) {
-		String[] splitted = entityClass.getName().split("\\.");
-		return splitted[splitted.length-1];
+
+	private static String entityName(Class<? extends GenericEntity> entityClass) {
+		return ClassUtil.getClassName(entityClass);
 	}
 }
