@@ -62,23 +62,21 @@ public class GenericEntity {
 		return (GenericEntity) entityClass.newInstance();
 	}
 	
-	public static final EntityManager entityManager(Class entityClass) throws InstantiationException, IllegalAccessException {
+	public static final EntityManager entityManager(Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
         EntityManager em = newInstance(entityClass).entityManager;
         if (em == null) throw new IllegalStateException("Entity manager has not been injected (is the Spring Aspects JAR configured as an AJC/AJDT aspects library?)");
         return em;
     }
 
-	public static long countPeople(Class entityClass) throws InstantiationException, IllegalAccessException {
+	public static long countPeople(Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
         return entityManager(entityClass).createQuery("SELECT COUNT(o) FROM " + getClassName(entityClass) + " o", Long.class).getSingleResult();
     }
 
-	@SuppressWarnings("unchecked")
-	public static List<GenericEntity> findAllPeople(Class entityClass) throws InstantiationException, IllegalAccessException {
+	public static List<GenericEntity> findAllPeople(Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
         return (List<GenericEntity>) entityManager(entityClass).createQuery("SELECT o FROM " + getClassName(entityClass) + " o", entityClass).getResultList();
     }
 
-	@SuppressWarnings("unchecked")
-	public static List<GenericEntity> findAllPeople(String sortFieldName, String sortOrder, Class entityClass) throws InstantiationException, IllegalAccessException {
+	public static List<GenericEntity> findAllPeople(String sortFieldName, String sortOrder, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
         String jpaQuery = "SELECT o FROM " + getClassName(entityClass) + " o";
         if (fieldNames4OrderClauseFilter.contains(sortFieldName)) {
             jpaQuery = jpaQuery + " ORDER BY " + sortFieldName;
@@ -89,18 +87,16 @@ public class GenericEntity {
         return (List<GenericEntity>) entityManager(entityClass).createQuery(jpaQuery, entityClass).getResultList();
     }
 
-	public static GenericEntity findPerson(Long id, Class entityClass) throws InstantiationException, IllegalAccessException {
+	public static GenericEntity findPerson(Long id, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
         if (id == null) return null;
         return (GenericEntity) entityManager(entityClass).find(entityClass, id);
     }
 
-	@SuppressWarnings("unchecked")
-	public static List<GenericEntity> findPersonEntries(int firstResult, int maxResults, Class entityClass) throws InstantiationException, IllegalAccessException {
-        return (List<GenericEntity>) entityManager(entityClass).createQuery("SELECT o FROM " + getClassName(entityClass) + " o", entityClass).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
+	public static List<? extends GenericEntity> findPersonEntries(int firstResult, int maxResults, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
+        return entityManager(entityClass).createQuery("SELECT o FROM " + getClassName(entityClass) + " o", entityClass).setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
     }
 
-	@SuppressWarnings("unchecked")
-	public static List<GenericEntity> findPersonEntries(int firstResult, int maxResults, String sortFieldName, String sortOrder, Class entityClass) throws InstantiationException, IllegalAccessException {
+	public static List<GenericEntity> findPersonEntries(int firstResult, int maxResults, String sortFieldName, String sortOrder, Class<? extends GenericEntity> entityClass) throws InstantiationException, IllegalAccessException {
         String jpaQuery = "SELECT o FROM " + getClassName(entityClass) + " o";
         if (fieldNames4OrderClauseFilter.contains(sortFieldName)) {
             jpaQuery = jpaQuery + " ORDER BY " + sortFieldName;
@@ -113,7 +109,6 @@ public class GenericEntity {
 
 	@Transactional
     public void persist() {
-        //if (this.entityManager == null) this.entityManager = entityManager();
         this.entityManager.persist(this);
     }
 
@@ -148,7 +143,7 @@ public class GenericEntity {
         return merged;
     }
 	
-	private static String getClassName(Class entityClass) {
+	private static String getClassName(Class<? extends GenericEntity> entityClass) {
 		String[] splitted = entityClass.getName().split("\\.");
 		return splitted[splitted.length-1];
 	}

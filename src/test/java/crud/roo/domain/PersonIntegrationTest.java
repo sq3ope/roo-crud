@@ -48,7 +48,7 @@ public class PersonIntegrationTest {
         Assert.assertNotNull("Data on demand for 'Person' failed to initialize correctly", dod.getRandomPerson());
         long count = Person.countPeople(Person.class);
         Assert.assertTrue("Too expensive to perform a find all test for 'Person', as there are " + count + " entries; set the findAllMaximum to exceed this value or set findAll=false on the integration test annotation to disable the test", count < 250);
-        List<GenericEntity> result = Person.findAllPeople(Person.class);
+        List<? extends GenericEntity> result = Person.findAllPeople(Person.class);
         Assert.assertNotNull("Find all method for 'Person' illegally returned null", result);
         Assert.assertTrue("Find all method for 'Person' failed to return any data", result.size() > 0);
     }
@@ -60,7 +60,7 @@ public class PersonIntegrationTest {
         if (count > 20) count = 20;
         int firstResult = 0;
         int maxResults = (int) count;
-        List<GenericEntity> result = Person.findPersonEntries(firstResult, maxResults, Person.class);
+        List<? extends GenericEntity> result = Person.findPersonEntries(firstResult, maxResults, Person.class);
         Assert.assertNotNull("Find entries method for 'Person' illegally returned null", result);
         Assert.assertEquals("Find entries method for 'Person' returned an incorrect number of entries", count, result.size());
     }
