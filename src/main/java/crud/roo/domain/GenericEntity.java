@@ -110,6 +110,7 @@ public class GenericEntity {
 
     @Transactional
     public void persist() {
+        //if (this.entityManager == null) this.entityManager = entityManager();
         this.entityManager.persist(this);
     }
 

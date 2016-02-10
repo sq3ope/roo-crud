@@ -79,5 +79,4 @@
             </list>
         </property>
     </bean>
-    <bean class="crud.roo.web.ApplicationConversionServiceFactoryBean" id="applicationConversionService"/>
 </beans>
